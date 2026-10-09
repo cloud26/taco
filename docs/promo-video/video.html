@@ -8,7 +8,8 @@
   Every visual is a pure function of time: render.mjs calls window.renderFrame(t)
   for each frame and screenshots the page. window.TIMELINE exposes the sound
   events that score.py turns into the soundtrack.
-  Load with ?shots=<dir> pointing at the capture.mjs output directory.
+  Query: ?lang=zh|en, ?format=wide (1920×1080) or square (1080×1080, for small
+  social-feed players: larger type and a closer, cursor-following camera).
 -->
 <style>
   :root {
@@ -16,11 +17,12 @@
     --ink: #0f1115; --paper: #f7f7f4; --night: #0a0d12;
     --sans: "Inter", "WenQuanYi Zen Hei", sans-serif;
     --mono: "DejaVu Sans Mono", "WenQuanYi Zen Hei Mono", monospace;
+    --W: 1920px; --H: 1080px; --CX: 960px; --CY: 540px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--night); }
+  html, body { width: var(--W); height: var(--H); overflow: hidden; background: var(--night); }
   body { font-family: var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
-  .layer { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; }
+  .layer { position: absolute; inset: 0; width: var(--W); height: var(--H); overflow: hidden; }
   .abs { position: absolute; left: 0; top: 0; will-change: transform, opacity; }
   .center { transform-origin: 50% 50%; }
 
@@ -34,23 +36,23 @@
   .card .ln { height: 10px; border-radius: 5px; background: #ffffff1c; margin-top: 14px; }
   .card .ln.s { width: 62%; }
   .card .ln.x { width: 82%; background: #ff6b6b44; }
-  #chaosText { width: 1920px; text-align: center; top: 420px; color: #fff; }
+  #chaosText { width: var(--W); text-align: center; top: 420px; color: #fff; }
   #chaosText .l1 { font-size: 64px; font-weight: 500; color: #9aa6b8; }
   #chaosText .l2 { font-size: 104px; font-weight: 800; letter-spacing: -1px; margin-top: 10px; }
   #count { display: inline-block; min-width: 1.2em; color: var(--orange); font-variant-numeric: tabular-nums; }
   #flash { background: #fff; }
-  #fileIcon { width: 200px; height: 250px; margin: -125px 0 0 -100px; left: 960px; top: 470px; }
-  #fileLabel { width: 1920px; text-align: center; top: 640px; font: 600 44px var(--mono); color: #fff; }
-  #ifText { width: 1920px; text-align: center; top: 190px; font-size: 76px; font-weight: 700; color: #fff; }
+  #fileIcon { width: 200px; height: 250px; margin: -125px 0 0 -100px; left: var(--CX); top: 470px; }
+  #fileLabel { width: var(--W); text-align: center; top: 640px; font: 600 44px var(--mono); color: #fff; }
+  #ifText { width: var(--W); text-align: center; top: 190px; font-size: 76px; font-weight: 700; color: #fff; }
   #ifText em { font-style: normal; color: var(--green); }
 
   /* Scene 3: reveal */
-  .wipe { border-radius: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; left: 960px; top: 540px; }
+  .wipe { border-radius: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; left: var(--CX); top: var(--CY); }
   #paper { background: var(--paper); }
-  #logo { left: 960px; top: 470px; width: 0; height: 0; }
+  #logo { left: var(--CX); top: 470px; width: 0; height: 0; }
   .bub { position: absolute; border-radius: 50%; }
   #wordmark { font-size: 230px; font-weight: 800; letter-spacing: -8px; line-height: 1; position: absolute; left: 30px; top: -130px; white-space: nowrap; }
-  #tagline { width: 1920px; text-align: center; top: 700px; font-size: 54px; font-weight: 500; color: #3a404a; line-height: 1.45; }
+  #tagline { width: var(--W); text-align: center; top: 700px; font-size: 54px; font-weight: 500; color: #3a404a; line-height: 1.45; }
   #tagline b { color: var(--ink); font-weight: 800; background: linear-gradient(transparent 62%, #3ecf8e66 62%); }
 
   /* Scene 4-5: product window */
@@ -84,7 +86,7 @@
   #termBody .ok { color: var(--green); }
   #termBody .em { font-family: "Noto Color Emoji"; }
   .caret { display: inline-block; width: 13px; height: 28px; background: #c9d1d9; vertical-align: -5px; }
-  #loop { left: 960px; top: 540px; width: 0; height: 0; }
+  #loop { left: var(--CX); top: var(--CY); width: 0; height: 0; }
   .node { position: absolute; width: 300px; margin-left: -150px; text-align: center; }
   .node .dot { width: 130px; height: 130px; border-radius: 50%; margin: 0 auto; display: grid; place-items: center; font: 60px "Noto Color Emoji"; background: #fff; box-shadow: 0 16px 40px #0f111522; border: 5px solid #e3e5e8; }
   .node .lb { font-size: 32px; font-weight: 700; margin-top: 14px; }
@@ -99,20 +101,58 @@
 
   /* Scene 8: CTA */
   #cta { background: #fff; }
-  #ctaLogo { left: 960px; top: 250px; width: 0; height: 0; }
-  #ctaHead { width: 1920px; text-align: center; top: 390px; font-size: 92px; font-weight: 800; letter-spacing: -1px; }
+  #ctaLogo { left: var(--CX); top: 250px; width: 0; height: 0; }
+  #ctaHead { width: var(--W); text-align: center; top: 390px; font-size: 92px; font-weight: 800; letter-spacing: -1px; }
   #ctaHead em { font-style: normal; color: var(--green); }
-  #cmd { left: 960px; top: 590px; transform-origin: 50% 50%; background: #0f1115; color: #e6edf3; border-radius: 22px; padding: 30px 46px;
+  #cmd { left: var(--CX); top: 590px; transform-origin: 50% 50%; background: #0f1115; color: #e6edf3; border-radius: 22px; padding: 30px 46px;
          font: 38px var(--mono); white-space: pre; box-shadow: 0 30px 80px #0f111544; }
   #cmd .p { color: var(--green); }
-  #ctaUrl { width: 1920px; text-align: center; top: 760px; font-size: 36px; color: #5b6270; }
+  #ctaUrl { width: var(--W); text-align: center; top: 760px; font-size: 36px; color: #5b6270; }
   #ctaUrl b { color: var(--ink); }
-  #ps { left: 960px; top: 860px; display: flex; align-items: center; gap: 30px; background: #fffbe8; border: 2px solid #f3d27a; border-radius: 26px; padding: 18px 34px 18px 18px; box-shadow: 0 24px 60px #0f111522; }
+  #ps { width: max-content; left: var(--CX); top: 860px; display: flex; align-items: center; gap: 30px; background: #fffbe8; border: 2px solid #f3d27a; border-radius: 26px; padding: 18px 34px 18px 18px; box-shadow: 0 24px 60px #0f111522; }
   #ps .thumb { width: 300px; height: 170px; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #0002; background: #fff; }
   #ps img { position: absolute; width: 1100px; height: 619px; left: -830px; top: -215px; }
   #ps .t { font-size: 34px; font-weight: 700; line-height: 1.45; }
   #ps .t span { color: #8a6d1d; font-weight: 600; font-size: 26px; display: block; }
   #fade { background: #000; }
+  /* Square social cut: everything larger, the product window fills the frame */
+  .sq { --W: 1080px; --H: 1080px; --CX: 540px; --CY: 540px; }
+  .sq #chaosText { top: 330px; padding: 0 50px; }
+  .sq #chaosText .l1 { font-size: 72px; }
+  .sq #chaosText .l2 { font-size: 100px; line-height: 1.15; }
+  .sq #ifText { top: 150px; padding: 0 60px; font-size: 80px; line-height: 1.25; }
+  .sq #fileIcon { top: 560px; }
+  .sq #fileLabel { top: 730px; font-size: 52px; }
+  .sq #logo { top: 420px; }
+  .sq #wordmark { font-size: 200px; }
+  .sq #tagline { top: 640px; padding: 0 40px; font-size: 50px; }
+  .sq #win { left: 20px; top: 210px; width: 1040px; height: 850px; }
+  .sq #bar { height: 52px; }
+  .sq #url { font-size: 20px; height: 34px; }
+  .sq #url .off { font-size: 18px; }
+  .sq #viewport { top: 52px; width: 1040px; height: 798px; }
+  .sq #cursor { width: 34px; height: 44px; }
+  .sq .chip { left: 30px; top: 22px; width: 1020px; padding: 22px 30px; gap: 26px; }
+  .sq .chip .n { width: 84px; height: 84px; font-size: 46px; flex: none; }
+  .sq .chip .t { font-size: 58px; }
+  .sq .chip .s { font-size: 32px; }
+  .sq #term { left: 30px; top: 170px; width: 1020px; height: 760px; }
+  .sq #term .tb span { font-size: 22px; }
+  .sq #termBody { font-size: 31px; padding: 30px 30px; white-space: pre-wrap; }
+  .sq .node { width: 340px; margin-left: -170px; }
+  .sq .node .dot { width: 150px; height: 150px; font-size: 72px; }
+  .sq .node .lb { font-size: 38px; }
+  .sq #loopCenter { width: 440px; left: -220px; top: -70px; font-size: 52px; }
+  .sq #claimWord { white-space: normal; max-width: 980px; font-size: 170px; }
+  .sq #claimSub { font-size: 50px; padding: 0 40px; }
+  .sq #ctaLogo { top: 220px; }
+  .sq #ctaHead { top: 330px; padding: 0 50px; font-size: 92px; line-height: 1.2; }
+  .sq #cmd { top: 640px; font-size: 30px; padding: 28px 34px; }
+  .sq #ctaUrl { top: 740px; font-size: 38px; }
+  .sq #ps { top: 870px; }
+  .sq #ps .t { font-size: 38px; }
+  .sqbr { display: none; }
+  .sq .sqbr { display: inline; }
 </style>
 </head>
 <body>
@@ -191,12 +231,17 @@ const hash = n => { const x = Math.sin(n * 127.1) * 43758.5453; return x - Math.
 const $ = id => document.getElementById(id);
 const set = (el, o, tf) => { el.style.opacity = o; if (tf !== undefined) el.style.transform = tf; el.style.visibility = o <= 0.001 ? 'hidden' : 'visible'; };
 
+// ---------- format (?format=wide|square) ----------
+const SQ = new URLSearchParams(location.search).get('format') === 'square';
+if (SQ) document.documentElement.classList.add('sq');
+const W = SQ ? 1080 : 1920, H = 1080, CX = W / 2, CY = H / 2;
+
 // ---------- copy (?lang=zh|en) ----------
 const LANG = new URLSearchParams(location.search).get('lang') || 'zh';
 const COPY = {
   zh: {
     l1: '一份 spec，', l2: n => `散落在 <span id="count">${n}</span> 个地方。`,
-    ifText: '如果，一切都在<em>一个文件</em>里？',
+    ifText: '如果，<br class="sqbr">一切都在<em>一个文件</em>里？',
     tagline: '让人与 Agent 在<b>一个文件</b>里<br>共同审阅、传递和管理 spec。',
     file: 'Taco_宣传片.taco.html', offline: '● 离线 · 无需登录',
     sources: [['💬', '群聊记录'], ['✉️', '邮件 RE: RE: FW:'], ['📚', 'Wiki 旧版'], ['🖼️', '截图 (3).png'],
@@ -215,13 +260,13 @@ const COPY = {
     loopCenter: '人负责判断<br><span>Agent 负责落地</span>',
     claims: [['离线可用', '断网也能打开、阅读、评论'], ['无需账号', '收件人只需要一个浏览器'],
       ['Markdown 仍是源头', '可 diff · 可 grep · 可 git'], ['MIT 开源', '界面和格式，都能自己改']],
-    ctaHead: '一个文件，<em>就是交接物。</em>',
+    ctaHead: '一个文件，<br class="sqbr"><em>就是交接物。</em>',
     ctaUrl: 'MIT 开源 · <b>github.com/Arcadia822/taco</b>',
     ps: '<span>P.S.</span>这支短片的分镜，<br>就是在 Taco 里评审的。', psTop: -215,
   },
   en: {
     l1: 'One spec,', l2: n => `scattered across <span id="count">${n}</span> places.`,
-    ifText: 'What if it all lived in <em>one file</em>?',
+    ifText: 'What if it all lived <br class="sqbr">in <em>one file</em>?',
     tagline: 'Review, hand off, and manage specs<br>with humans and agents — <b>in one file</b>.',
     file: 'Taco_Promo.taco.html', offline: '● Offline · No sign-in',
     sources: [['💬', 'Group chat'], ['✉️', 'RE: RE: FW: spec'], ['📚', 'Old wiki page'], ['🖼️', 'Screenshot (3).png'],
@@ -240,7 +285,7 @@ const COPY = {
     loopCenter: 'Humans judge.<br><span>Agents deliver.</span>',
     claims: [['Works offline', 'Open, read, and comment without a network'], ['No account', 'Recipients only need a browser'],
       ['Markdown stays canonical', 'diff it · grep it · git it'], ['MIT licensed', 'Change the UI and the format yourself']],
-    ctaHead: 'One file. <em>That\'s the handoff.</em>',
+    ctaHead: 'One file. <br class="sqbr"><em>That\'s the handoff.</em>',
     ctaUrl: 'MIT licensed · <b>github.com/Arcadia822/taco</b>',
     ps: '<span>P.S.</span>This film\'s storyboard<br>was reviewed in Taco.', psTop: -255,
   },
@@ -287,7 +332,7 @@ function chaos(t) {
     if (t >= popAt(i)) shown++;
     const a = (i / 12) * Math.PI * 2 + spin * (1 + 0.15 * hash(i));
     const rad = (1 - suck) * (1 + 0.08 * Math.sin(t * 2 + i));
-    const x = 960 + Math.cos(a) * 650 * rad, y = 540 + Math.sin(a) * 370 * rad;
+    const x = CX + Math.cos(a) * (SQ ? 400 : 650) * rad, y = CY + Math.sin(a) * (SQ ? 430 : 370) * rad;
     const rot = (hash(i + 3) - .5) * 30 + Math.sin(t * 1.3 + i) * 6 + suck * 540;
     const shake = t > S.collapse - BAR ? (hash(Math.floor(t * 30) + i) - .5) * 10 * seg(t, S.collapse - BAR, S.collapse) : 0;
     const s = eBack(k) * (1 - 0.9 * suck);
@@ -333,10 +378,10 @@ function reveal(t) {
   set($('paper'), t >= S.reveal + 0.94 ? 1 : 0);
   const on = t >= S.reveal && t < S.product + 0.8;
   const out = eIn(seg(t, S.product - 0.9, S.product - 0.3));
-  const unit = 16;
-  placeLogo($('logo'), unit, -470, -240, S.reveal + BEAT, t);
+  const unit = SQ ? 14 : 16;
+  placeLogo($('logo'), unit, SQ ? -430 : -470, SQ ? -210 : -240, S.reveal + BEAT, t);
   const wk = eOut(seg(t, S.reveal + BEAT * 2.5, S.reveal + BEAT * 3.5));
-  $('wordmark').style.left = `${-80 + (1 - wk) * 60}px`;
+  $('wordmark').style.left = `${(SQ ? -100 : -80) + (1 - wk) * 60}px`;
   $('wordmark').style.opacity = wk;
   set($('logo'), on ? 1 - out : 0, `translate(0,${-out * 120}px) scale(${1 - out * 0.3})`);
   const tk = eOut(seg(t, S.reveal + BEAT * 4.5, S.reveal + BEAT * 5.8));
@@ -346,7 +391,7 @@ function reveal(t) {
 // ---------- scenes 4-5: the real product ----------
 let SHOTS = null, SHOT_DIR = '';
 const track = [];        // {t, file, cx, cy, click}
-const camKeys = [];      // {t, fx, fy, z}
+const camKeys = [];      // {t, fx, fy, z, f}: f blends the focus toward the cursor
 const chips = [];        // {t0, t1, n, color, title, sub}
 function buildProductTimeline() {
   const P = S.product, M = S.more;
@@ -369,12 +414,24 @@ function buildProductTimeline() {
   add(M + BEAT * 6.4, sh.handoff[1], { ding: true });
   track.sort((a, b) => a.t - b.t);
   track.forEach(k => { if (k.click) ev(k.t - 0.05, 'click'); if (k.key) ev(k.t, 'key'); if (k.ding) ev(k.t, 'ding'); });
-  const c = (t, fx, fy, z) => camKeys.push({ t, fx, fy, z });
-  c(P - 1, 720, 405, 1); c(P + BEAT * 4, 720, 405, 1); c(P + BEAT * 6, 700, 360, 1.75);
-  c(P + BEAT * 9.6, 640, 370, 1.75); c(P + BEAT * 11.2, 1100, 430, 1.55); c(P + BEAT * 17.8, 1120, 420, 1.55);
-  c(P + BEAT * 19.5, 900, 300, 1.3); c(M - BEAT * 0.5, 860, 330, 1.22); c(M + BEAT * 0.6, 720, 405, 1);
-  c(M + BEAT * 1.6, 720, 405, 1); c(M + BEAT * 2.6, 690, 440, 1.5); c(M + BEAT * 4.2, 700, 445, 1.58);
-  c(M + BEAT * 4.8, 720, 405, 1); c(M + BEAT * 6.2, 720, 405, 1); c(M + BEAT * 7, 980, 420, 1.35); c(S.agent + 1, 900, 420, 1.3);
+  const c = (t, fx, fy, z, f = 0) => camKeys.push({ t, fx, fy, z, f });
+  if (SQ) {
+    // zoom values here are absolute pixels-per-UI-pixel; convert to the base scale
+    const q = (t, fx, fy, sc, f = 0) => c(t, fx, fy, sc / BASE, f);
+    q(P - 1, 720, 405, 1.0); q(P + BEAT * 2, 720, 405, 1.0); q(P + BEAT * 4, 400, 210, 1.55);
+    q(P + BEAT * 5.6, 560, 360, 1.9, 0.9); q(P + BEAT * 9.6, 560, 380, 1.9, 0.9); q(P + BEAT * 10.3, 560, 400, 1.9, 0.9);
+    q(P + BEAT * 11.2, 1280, 440, 2.5); q(P + BEAT * 17.2, 1280, 440, 2.5); q(P + BEAT * 18.6, 1280, 420, 2.3);
+    q(P + BEAT * 20, 1150, 390, 1.6); q(M - BEAT * 0.5, 1150, 390, 1.6);
+    q(M + BEAT * 0.2, 300, 200, 1.6, 0.6); q(M + BEAT * 1.4, 300, 200, 1.6, 0.6); q(M + BEAT * 2.4, 690, 440, 1.32); q(M + BEAT * 4, 690, 440, 1.36);
+    q(M + BEAT * 4.5, 300, 240, 1.7, 0.6); q(M + BEAT * 5.4, 600, 200, 1.7, 0.6); q(M + BEAT * 6.1, 1130, 120, 2.1);
+    q(M + BEAT * 6.6, 1130, 120, 2.1); q(M + BEAT * 7.4, 720, 750, 2.6); q(S.agent + 1, 720, 750, 2.6);
+  } else {
+    c(P - 1, 720, 405, 1); c(P + BEAT * 4, 720, 405, 1); c(P + BEAT * 6, 700, 360, 1.75);
+    c(P + BEAT * 9.6, 640, 370, 1.75); c(P + BEAT * 11.2, 1100, 430, 1.55); c(P + BEAT * 17.8, 1120, 420, 1.55);
+    c(P + BEAT * 19.5, 900, 300, 1.3); c(M - BEAT * 0.5, 860, 330, 1.22); c(M + BEAT * 0.6, 720, 405, 1);
+    c(M + BEAT * 1.6, 720, 405, 1); c(M + BEAT * 2.6, 690, 440, 1.5); c(M + BEAT * 4.2, 700, 445, 1.58);
+    c(M + BEAT * 4.8, 720, 405, 1); c(M + BEAT * 6.2, 720, 405, 1); c(M + BEAT * 7, 980, 420, 1.35); c(S.agent + 1, 900, 420, 1.3);
+  }
   chips.push({ t0: P + BEAT * 0.5, t1: P + BEAT * 5, n: 1, color: 'var(--green)', title: COPY.chips[0][0], sub: COPY.chips[0][1] });
   chips.push({ t0: P + BEAT * 5.5, t1: P + BEAT * 18, n: 2, color: 'var(--blue)', title: COPY.chips[1][0], sub: COPY.chips[1][1] });
   chips.push({ t0: P + BEAT * 18.4, t1: M, n: 3, color: 'var(--orange)', title: COPY.chips[2][0], sub: COPY.chips[2][1] });
@@ -387,7 +444,7 @@ function camAt(t) {
   let i = 0; while (i < camKeys.length - 1 && camKeys[i + 1].t <= t) i++;
   const a = camKeys[i], b = camKeys[Math.min(i + 1, camKeys.length - 1)];
   const k = b === a ? 1 : eInOut(seg(t, a.t, b.t));
-  return { fx: lerp(a.fx, b.fx, k), fy: lerp(a.fy, b.fy, k), z: lerp(a.z, b.z, k) };
+  return { fx: lerp(a.fx, b.fx, k), fy: lerp(a.fy, b.fy, k), z: lerp(a.z, b.z, k), f: lerp(a.f, b.f, k) };
 }
 function cursorAt(t) {
   let i = 0; while (i < track.length - 1 && track[i + 1].t <= t) i++;
@@ -397,7 +454,7 @@ function cursorAt(t) {
   const k = b === a ? 0 : eInOut(seg(t, b.t - lead, b.t));
   return { x: lerp(a.cx, b.cx, k), y: lerp(a.cy, b.cy, k) };
 }
-const VW = 1584, VH = 891, K = VW / 1440;
+const VW = SQ ? 1040 : 1584, VH = SQ ? 798 : 891, K = VW / 1440, BASE = K;
 function product(t) {
   const on = t >= S.product - 1 && t < S.loop + 0.3;
   if (!on) { set($('win'), 0); set($('chip'), 0); return; }
@@ -405,15 +462,15 @@ function product(t) {
   const src = SHOT_DIR + '/' + k.file;
   if ($('shot').getAttribute('src') !== src) $('shot').setAttribute('src', src);
   // camera
-  const c = camAt(t), z = c.z * K;
-  const fx = clamp(c.fx, VW / 2 / z, 1440 - VW / 2 / z), fy = clamp(c.fy, VH / 2 / z, 810 - VH / 2 / z);
+  const c = camAt(t), z = Math.max(c.z * K, VH / 810, VW / 1440);
+  const cu = cursorAt(t);
+  const fx = clamp(lerp(c.fx, cu.x, c.f), VW / 2 / z, 1440 - VW / 2 / z), fy = clamp(lerp(c.fy, cu.y, c.f), VH / 2 / z, 810 - VH / 2 / z);
   $('cam').style.transform = `translate(${VW / 2}px,${VH / 2}px) scale(${z}) translate(${-fx}px,${-fy}px)`;
   // cursor + click ripple
-  const cu = cursorAt(t);
   const lastClick = [...track].reverse().find(x => x.click && x.t - 0.05 <= t);
   const since = lastClick ? t - (lastClick.t - 0.05) : 9;
   const press = since < 0.18 ? 0.85 : 1;
-  $('cursor').style.transform = `translate(${cu.x - 3}px,${cu.y - 2}px) scale(${press / Math.sqrt(c.z)})`;
+  $('cursor').style.transform = `translate(${cu.x - 3}px,${cu.y - 2}px) scale(${press / Math.sqrt(z / K)})`;
   $('cursor').style.transformOrigin = '0 0';
   const rk = seg(since, 0, 0.5);
   set($('ripple'), since < 0.5 ? 1 - rk : 0, `translate(${lastClick ? lastClick.cx : 0}px,${lastClick ? lastClick.cy : 0}px) scale(${0.3 + rk * 1.2})`);
@@ -422,7 +479,9 @@ function product(t) {
   const ag = eInOut(seg(t, S.agent, S.agent + BEAT * 1.5));
   const lo = eIn(seg(t, S.loop - 0.4, S.loop + 0.2));
   const rx = (1 - ink) * 22;
-  const tf = `perspective(2400px) translate(${-ag * 470}px, ${(1 - ink) * 300 + ag * 40 + lo * 700}px) rotateX(${rx}deg) scale(${(0.88 + 0.12 * ink) * (1 - ag * 0.44)})`;
+  const tf = SQ
+    ? `perspective(2400px) translate(0, ${(1 - ink) * 300 + ag * 900}px) rotateX(${rx}deg) scale(${(0.88 + 0.12 * ink) * (1 - ag * 0.2)})`
+    : `perspective(2400px) translate(${-ag * 470}px, ${(1 - ink) * 300 + ag * 40 + lo * 700}px) rotateX(${rx}deg) scale(${(0.88 + 0.12 * ink) * (1 - ag * 0.44)})`;
   set($('win'), ink, tf);
   // caption chips
   const ch = chips.find(x => t >= x.t0 && t < x.t1);
@@ -430,7 +489,7 @@ function product(t) {
     $('chipN').textContent = ch.n; $('chipN').style.background = ch.color;
     $('chipT').textContent = ch.title; $('chipS').textContent = ch.sub;
     const a = eOut(seg(t, ch.t0, ch.t0 + 0.4)), b = eIn(seg(t, ch.t1 - 0.25, ch.t1));
-    set($('chip'), a * (1 - b), `translate(${(1 - a) * -60}px,0)`);
+    set($('chip'), a * (1 - b), SQ ? `translate(0,${(1 - a) * -40}px)` : `translate(${(1 - a) * -60}px,0)`);
   } else set($('chip'), 0);
 }
 
@@ -439,7 +498,8 @@ const TERM_DELAYS = [0.0, 0.6, 1.1, 1.9, 2.4, 2.9, 3.3];
 const TERM = COPY.term.map((line, i) => [TERM_DELAYS[i], line]);
 const T0 = S.agent + BEAT * 1.2;
 TERM.forEach(([d], i) => ev(T0 + d, i < 3 ? 'type' : 'ok'));
-const LOOP_POS = [[-560, -40], [0, -330], [560, -40], [0, 250]];
+const RX = SQ ? 340 : 560, RY = SQ ? 320 : 290, OY = SQ ? -10 : -40;
+const LOOP_POS = [[-RX, OY], [0, OY - RY], [RX, OY], [0, OY + RY]];
 LOOP_POS.forEach((_, i) => ev(S.loop + BEAT * (1 + i * 1.25), 'node', { i }));
 ev(S.loop - 0.2, 'swish');
 function agent(t) {
@@ -464,8 +524,8 @@ function agent(t) {
   // the file travels the ellipse through all four nodes
   const k = clamp((t - (S.loop + BEAT)) / (BEAT * 1.25 * 4));
   const ang = Math.PI - k * Math.PI * 2;
-  $('traveler').style.left = `${Math.cos(ang) * 560}px`;
-  $('traveler').style.top = `${-40 - Math.sin(ang) * 290}px`;
+  $('traveler').style.left = `${Math.cos(ang) * RX}px`;
+  $('traveler').style.top = `${OY - Math.sin(ang) * RY}px`;
   $('traveler').style.transform = `rotate(${Math.sin(t * 8) * 8}deg)`;
   $('traveler').style.opacity = k > 0 ? 1 : 0;
 }
@@ -482,8 +542,9 @@ function claims(t) {
   const k = seg(t, S.claims + i * BEAT * 2, S.claims + i * BEAT * 2 + 0.35);
   $('claim').style.background = bg;
   $('claimWord').textContent = w; $('claimSub').textContent = s;
-  $('claimWord').style.fontSize = '190px';
-  $('claimWord').style.fontSize = `${190 * Math.min(1, 1760 / $('claimWord').scrollWidth)}px`;
+  const base = SQ ? 170 : 190;
+  $('claimWord').style.fontSize = `${base}px`;
+  $('claimWord').style.fontSize = `${base * Math.min(1, (W - 160) / $('claimWord').scrollWidth)}px`;
   $('claimWord').style.transform = `scale(${1.35 - 0.35 * eOut(k)})`;
   $('claimWord').style.filter = `blur(${(1 - eOut(k)) * 10}px)`;
   $('claimSub').style.opacity = seg(t, S.claims + i * BEAT * 2 + 0.15, S.claims + i * BEAT * 2 + 0.5);
@@ -505,7 +566,7 @@ function cta(t) {
   if (!host.children.length) {
     host.innerHTML = '<div class="bub" style="background:var(--green)"></div><div class="bub" style="background:var(--blue)"></div><div class="bub" style="background:var(--orange)"></div><div style="position:absolute;left:10px;top:-62px;font-size:110px;font-weight:800;letter-spacing:-4px">Taco</div>';
   }
-  placeLogo(host, 7.5, -230, -110, S.cta + 0.1, t);
+  placeLogo(host, SQ ? 8.5 : 7.5, SQ ? -250 : -230, -110, S.cta + 0.1, t);
   set(host, 1);
   const h = eOut(seg(t, S.cta + BEAT, S.cta + BEAT * 2.5));
   set($('ctaHead'), h, `translateY(${(1 - h) * 30}px)`);
@@ -519,13 +580,13 @@ function cta(t) {
   set($('ctaUrl'), u * (1 - shift), `translateY(${(1 - u) * 20}px)`);
   const p = spring(seg(t, S.cta + BAR * 2.5, S.cta + BAR * 2.5 + 1.2));
   set($('ps'), p > 0 ? 1 : 0, `translate(-50%, ${(1 - p) * 300 - 60}px)`);
-  ['ctaHead'].forEach(id => $(id).style.top = `${390 - shift * 70}px`);
-  host.style.top = `${250 - shift * 70}px`;
+  $('ctaHead').style.top = `${(SQ ? 330 : 390) - shift * 70}px`;
+  host.style.top = `${(SQ ? 220 : 250) - shift * 70}px`;
   set($('fade'), seg(t, S.end - 0.7, S.end));
 }
 
 // ---------- entry points ----------
-window.TIMELINE = { duration: DURATION, bpm: BPM, scenes: S, events: EVENTS };
+window.TIMELINE = { duration: DURATION, bpm: BPM, scenes: S, events: EVENTS, size: { width: W, height: H } };
 window.setup = (shots, dir, psShot) => {
   SHOTS = shots; SHOT_DIR = dir;
   buildProductTimeline();

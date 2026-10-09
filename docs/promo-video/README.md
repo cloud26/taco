@@ -1,6 +1,6 @@
 # Taco promo video
 
-A 54-second, 1920×1080 promo video in Chinese (`zh`) and English (`en`). The video's own storyboard is a Taco (`storyboard/`), and every product shot in it is a real screenshot of the production shell. Playwright drives that shell: it opens the file, selects text, writes a comment, opens the Mermaid diagram, and hands off to an Agent. The motion graphics and the soundtrack are both generated in code, with no external assets.
+A 54-second promo video in Chinese (`zh`) and English (`en`), in two formats: `wide` (1920×1080) and `square` (1080×1080). The square cut is for social feeds such as X, where small players shrink a 16:9 video too far to read: its type is larger, and the camera zooms in on the real UI and follows the cursor. The video's own storyboard is a Taco (`storyboard/`), and every product shot in it is a real screenshot of the production shell. Playwright drives that shell: it opens the file, selects text, writes a comment, opens the Mermaid diagram, and hands off to an Agent. The motion graphics and the soundtrack are both generated in code, with no external assets.
 
 | File | Purpose |
 | --- | --- |
@@ -24,6 +24,6 @@ ffmpeg -framerate 30 -i tmp/promo/frames/f%05d.jpg -i tmp/promo/score.wav \
   -movflags +faststart tmp/taco-promo.mp4
 ```
 
-For the English cut, pack `storyboard-en/` as `tmp/Taco_Promo.taco.html` (`--title "Taco Promo"`, groups `Planning=spec.md,music.md` and `Storyboard=scenes/storyboard.md,diagrams/review-loop.mmd`), then pass `en` as the third argument to `capture.mjs` and `--lang en` to `render.mjs`; the remaining steps are the same.
+For the English cut, pack `storyboard-en/` as `tmp/Taco_Promo.taco.html` (`--title "Taco Promo"`, groups `Planning=spec.md,music.md` and `Storyboard=scenes/storyboard.md,diagrams/review-loop.mmd`), then pass `en` as the third argument to `capture.mjs` and `--lang en` to `render.mjs`; the remaining steps are the same. Add `--format square` to `render.mjs` for the square cut.
 
 Requirements: Node 22 with Playwright and Chromium, Python 3 with numpy, and ffmpeg. The scripts import Playwright from `/opt/node-tools/node_modules/playwright`; change that path to match your environment.
