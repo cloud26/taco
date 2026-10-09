@@ -27,23 +27,23 @@
   .center { transform-origin: 50% 50%; }
 
   /* Scene 1-2: chaos */
-  #night { background: radial-gradient(1200px 800px at 50% 50%, #141a24 0%, var(--night) 70%); }
-  #grid { opacity: .5; background-image: linear-gradient(#ffffff08 1px, transparent 1px), linear-gradient(90deg, #ffffff08 1px, transparent 1px); background-size: 64px 64px; }
-  .card { width: 260px; height: 150px; margin: -75px 0 0 -130px; border-radius: 22px; background: #1b222d; border: 1px solid #2c3544;
-          box-shadow: 0 20px 60px #0009; padding: 20px 22px; color: #e8edf5; }
+  #night { background: radial-gradient(1200px 800px at 50% 50%, #fbfbf9 0%, #ecebe6 75%); }
+  #grid { opacity: .6; background-image: linear-gradient(#0f11150a 1px, transparent 1px), linear-gradient(90deg, #0f11150a 1px, transparent 1px); background-size: 64px 64px; }
+  .card { width: 260px; height: 150px; margin: -75px 0 0 -130px; border-radius: 22px; background: #fff; border: 1px solid #e3e5e8;
+          box-shadow: 0 20px 50px #0f111522; padding: 20px 22px; color: var(--ink); }
   .card .hd { display: flex; align-items: center; gap: 12px; font-size: 24px; font-weight: 600; white-space: nowrap; }
   .card .em { font-size: 34px; font-family: "Noto Color Emoji"; }
-  .card .ln { height: 10px; border-radius: 5px; background: #ffffff1c; margin-top: 14px; }
+  .card .ln { height: 10px; border-radius: 5px; background: #0f111512; margin-top: 14px; }
   .card .ln.s { width: 62%; }
-  .card .ln.x { width: 82%; background: #ff6b6b44; }
-  #chaosText { width: var(--W); text-align: center; top: 420px; color: #fff; }
-  #chaosText .l1 { font-size: 64px; font-weight: 500; color: #9aa6b8; }
+  .card .ln.x { width: 82%; background: #ff6b6b55; }
+  #chaosText { width: var(--W); text-align: center; top: 420px; color: var(--ink); }
+  #chaosText .l1 { font-size: 64px; font-weight: 500; color: #6b7280; }
   #chaosText .l2 { font-size: 104px; font-weight: 800; letter-spacing: -1px; margin-top: 10px; }
   #count { display: inline-block; min-width: 1.2em; color: var(--orange); font-variant-numeric: tabular-nums; }
-  #flash { background: #fff; }
-  #fileIcon { width: 200px; height: 250px; margin: -125px 0 0 -100px; left: var(--CX); top: 470px; }
-  #fileLabel { width: var(--W); text-align: center; top: 640px; font: 600 44px var(--mono); color: #fff; }
-  #ifText { width: var(--W); text-align: center; top: 190px; font-size: 76px; font-weight: 700; color: #fff; }
+  #flash { background: radial-gradient(circle at 50% 50%, #3ecf8e99 0%, #3ecf8e00 55%); }
+  #fileIcon { filter: drop-shadow(0 24px 40px #0f111530); width: 200px; height: 250px; margin: -125px 0 0 -100px; left: var(--CX); top: 470px; }
+  #fileLabel { width: var(--W); text-align: center; top: 640px; font: 600 44px var(--mono); color: var(--ink); }
+  #ifText { width: var(--W); text-align: center; top: 190px; font-size: 76px; font-weight: 700; color: var(--ink); }
   #ifText em { font-style: normal; color: var(--green); }
 
   /* Scene 3: reveal */
@@ -114,7 +114,32 @@
   #ps img { position: absolute; width: 1100px; height: 619px; left: -830px; top: -215px; }
   #ps .t { font-size: 34px; font-weight: 700; line-height: 1.45; }
   #ps .t span { color: #8a6d1d; font-weight: 600; font-size: 26px; display: block; }
-  #fade { background: #000; }
+  #fade { background: #fff; }
+
+  /* Cover poster: the first frame is the thumbnail feeds show before playback */
+  #poster { background: var(--paper); }
+  #poster .blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .45; }
+  #pLogo { left: 160px; top: 250px; width: 0; height: 0; }
+  #pLogo .wm { position: absolute; left: 245px; top: 18px; font-size: 120px; font-weight: 800; letter-spacing: -4px; line-height: 1; }
+  #pHead { left: 160px; top: 430px; width: max-content; white-space: nowrap; font-size: 112px; font-weight: 800; letter-spacing: -2px; line-height: 1.15; }
+  #pHead em { font-style: normal; color: var(--green); }
+  #pSub { left: 160px; top: 720px; width: 900px; font-size: 40px; font-weight: 500; color: #4a515c; line-height: 1.4; }
+  #pPill { left: 160px; top: 850px; display: flex; gap: 14px; }
+  #pPill span { font-size: 30px; font-weight: 600; padding: 12px 24px; border-radius: 999px; background: #fff; box-shadow: 0 6px 18px #0f111514; white-space: nowrap; }
+  #pPill span:first-child { font-family: var(--mono); background: var(--ink); color: #fff; }
+  #pCard { left: 1080px; top: 240px; width: 720px; height: 560px; border-radius: 18px; overflow: hidden; background: #fff;
+           box-shadow: 0 50px 120px #0f111533, 0 0 0 1px #0f111514; transform: rotate(2deg); }
+  #pCard .bar { height: 40px; background: #ececea; display: flex; align-items: center; gap: 8px; padding: 0 16px; border-bottom: 1px solid #ddd; }
+  #pCard .bar i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+  #pCard .view { position: absolute; left: 0; top: 40px; right: 0; bottom: 0; overflow: hidden; }
+  #pCard img { position: absolute; transform-origin: 0 0; width: 1440px; height: 810px; }
+  .sq #pLogo { left: 70px; top: 70px; }
+  .sq #pLogo .wm { font-size: 104px; left: 210px; top: 14px; }
+  .sq #pHead { left: 70px; top: 230px; font-size: 100px; }
+  .sq #pSub { display: none; }
+  .sq #pCard { left: 70px; top: 500px; width: 940px; height: 400px; transform: rotate(-1deg); }
+  .sq #pPill { left: 70px; top: 950px; gap: 12px; }
+  .sq #pPill span { font-size: 28px; padding: 10px 20px; }
   /* Square social cut: everything larger, the product window fills the frame */
   .sq { --W: 1080px; --H: 1080px; --CX: 540px; --CY: 540px; }
   .sq #chaosText { top: 330px; padding: 0 50px; }
@@ -164,7 +189,7 @@
 <div class="abs" id="fileIcon">
   <svg viewBox="0 0 200 250" width="200" height="250">
     <path d="M18 0h120l62 62v170a18 18 0 0 1-18 18H18A18 18 0 0 1 0 232V18A18 18 0 0 1 18 0z" fill="#fff"/>
-    <path d="M138 0l62 62h-44a18 18 0 0 1-18-18z" fill="#d9dee5"/>
+    <path d="M138 0l62 62h-44a18 18 0 0 1-18-18z" fill="#e3e6eb"/>
     <circle cx="112" cy="128" r="34" fill="#3ecf8e"/><circle cx="74" cy="156" r="22" fill="#3b82f6"/><circle cx="110" cy="186" r="14" fill="#f97316"/>
   </svg>
 </div>
@@ -209,6 +234,16 @@
 <div class="abs" id="cmd"><span class="p">$ </span><span id="cmdText"></span><span class="caret" id="cmdCaret" style="background:#e6edf3"></span></div>
 <div class="abs" id="ctaUrl">MIT 开源 · <b>github.com/Arcadia822/taco</b></div>
 <div class="abs" id="ps"><div class="thumb"><img id="psImg" alt=""></div><div class="t"><span>P.S.</span>这支短片的分镜，<br>就是在 Taco 里评审的。</div></div>
+<div class="layer" id="poster">
+  <div class="blob" style="background:var(--green);width:700px;height:700px;left:-160px;top:-260px"></div>
+  <div class="blob" style="background:var(--blue);width:600px;height:600px;right:-140px;bottom:-200px"></div>
+  <div class="blob" style="background:var(--orange);width:380px;height:380px;right:30%;top:-120px;opacity:.25"></div>
+  <div class="abs" id="pLogo"><div class="bub" style="background:var(--green)"></div><div class="bub" style="background:var(--blue)"></div><div class="bub" style="background:var(--orange)"></div><div class="wm">Taco</div></div>
+  <div class="abs" id="pHead"></div>
+  <div class="abs" id="pSub"></div>
+  <div class="abs" id="pCard"><div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div><div class="view"><img id="pImg" alt=""></div></div>
+  <div class="abs" id="pPill"></div>
+</div>
 <div class="layer" id="fade"></div>
 
 <script>
@@ -263,6 +298,8 @@ const COPY = {
     ctaHead: '一个文件，<br class="sqbr"><em>就是交接物。</em>',
     ctaUrl: 'MIT 开源 · <b>github.com/Arcadia822/taco</b>',
     ps: '<span>P.S.</span>这支短片的分镜，<br>就是在 Taco 里评审的。', psTop: -215,
+    pHead: '一个文件，<br><em>就是交接物。</em>', pSub: '让人与 Agent 在一个文件里<br>共同审阅、传递和管理 spec。',
+    pPill: ['.taco.html', '离线可用', '无需账号', 'MIT 开源'],
   },
   en: {
     l1: 'One spec,', l2: n => `scattered across <span id="count">${n}</span> places.`,
@@ -288,6 +325,8 @@ const COPY = {
     ctaHead: 'One file. <br class="sqbr"><em>That\'s the handoff.</em>',
     ctaUrl: 'MIT licensed · <b>github.com/Arcadia822/taco</b>',
     ps: '<span>P.S.</span>This film\'s storyboard<br>was reviewed in Taco.', psTop: -255,
+    pHead: 'One file.<br><em>That\'s the handoff.</em>', pSub: 'Review, hand off, and manage specs<br>with humans and agents.',
+    pPill: ['.taco.html', 'Offline', 'No account', 'MIT'],
   },
 }[LANG];
 document.documentElement.lang = LANG === 'en' ? 'en' : 'zh-CN';
@@ -302,6 +341,13 @@ $('ctaHead').innerHTML = COPY.ctaHead;
 $('ctaUrl').innerHTML = COPY.ctaUrl;
 $('ps').querySelector('.t').innerHTML = COPY.ps;
 $('psImg').style.top = `${COPY.psTop}px`;
+$('pHead').innerHTML = COPY.pHead;
+{ // shrink the cover headline to its column
+  const base = SQ ? 100 : 112, room = SQ ? 940 : 880;
+  $('pHead').style.fontSize = `${base * Math.min(1, room / $('pHead').scrollWidth)}px`;
+}
+$('pSub').innerHTML = COPY.pSub;
+$('pPill').innerHTML = COPY.pPill.map(x => `<span>${x}</span>`).join('');
 
 // ---------- sound events (read by score.py) ----------
 const EVENTS = [];
@@ -585,17 +631,38 @@ function cta(t) {
   set($('fade'), seg(t, S.end - 0.7, S.end));
 }
 
+// ---------- cover poster (the first frame is the feed thumbnail) ----------
+const INTRO = BEAT * 2;
+function poster(t) {
+  const out = eIn(seg(t, INTRO - 0.35, INTRO));
+  set($('poster'), t < INTRO ? 1 - out : 0, `scale(${1 + 0.08 * out})`);
+  if (t >= INTRO) return;
+  placeLogo($('pLogo'), SQ ? 7.5 : 8.5, 0, SQ ? -20 : -30, -10, t);
+  $('pLogo').querySelector('.wm').style.opacity = 1;
+  // a gentle push-in so the hold is not a still image
+  $('pCard').style.transform = `rotate(${SQ ? -1 : 2}deg) translateY(${-t * 10}px) scale(${1 + t * 0.02})`;
+}
+
 // ---------- entry points ----------
-window.TIMELINE = { duration: DURATION, bpm: BPM, scenes: S, events: EVENTS, size: { width: W, height: H } };
+window.TIMELINE = { duration: DURATION + INTRO, intro: INTRO, bpm: BPM, scenes: S, events: EVENTS, size: { width: W, height: H } };
 window.setup = (shots, dir, psShot) => {
   SHOTS = shots; SHOT_DIR = dir;
   buildProductTimeline();
+  // every scene runs INTRO seconds later, behind the cover poster
+  EVENTS.forEach(e => { e.t = +(e.t + INTRO).toFixed(4); });
+  EVENTS.unshift({ t: 0, type: 'intro' });
   EVENTS.sort((a, b) => a.t - b.t);
+  // cover crop: the posted comment next to its highlighted sentence
+  const [sc, cx, cy] = SQ ? [2.0, 970, 318] : [1.75, 1030, 285];
+  $('pImg').src = dir + '/' + psShot;
+  $('pImg').style.transform = `scale(${sc}) translate(${-cx}px, ${-cy}px)`;
   $('psImg').src = dir + '/' + psShot;
   const files = new Set(track.map(k => k.file));
   return Promise.all([...files, psShot].map(f => new Promise(r => { const im = new Image(); im.onload = im.onerror = r; im.src = dir + '/' + f; })));
 };
-window.renderFrame = t => {
+window.renderFrame = T => {
+  const t = T - INTRO;
+  poster(T);
   chaos(t); reveal(t); product(t); agent(t); claims(t); cta(t);
   return new Promise(r => { const img = $('shot'); (img.complete ? Promise.resolve() : img.decode().catch(() => {})).then(() => requestAnimationFrame(() => r())); });
 };

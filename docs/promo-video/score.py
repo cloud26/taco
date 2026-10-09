@@ -19,6 +19,7 @@ timeline = json.load(open(sys.argv[1]))
 BEAT = 60 / timeline["bpm"]
 BAR = BEAT * 4
 SC = timeline["scenes"]
+INTRO = timeline.get("intro", 0.0)  # cover poster before the first bar
 DUR = timeline["duration"] + 1.0
 N = int(DUR * SR)
 music = np.zeros((N, 2))
@@ -178,7 +179,7 @@ def chord_for(bar):
 
 
 def bar_t(b):
-    return b * BAR
+    return INTRO + b * BAR
 
 
 for b in range(TOTAL_BARS):
@@ -309,6 +310,11 @@ for e in timeline["events"]:
     elif kind == "slam":
         place(sfx, t, boom()[: int(0.8 * SR)], 0.45)
         place(sfx, t, pluck([81, 84, 88, 93][e["i"]], 0.5, 1.4), 0.25)
+    elif kind == "intro":
+        # a soft C-major shimmer under the cover poster
+        for n, p in ((72, -0.3), (76, 0.3), (79, 0.0)):
+            place(sfx, t + 0.02, bell(n, 2.0), 0.08, p)
+        place_stereo(sfx, t, pad_chord([60, 64, 67], INTRO + 0.4, 1200), 0.2)
     elif kind == "final":
         for n, p in ((60, -0.4), (64, 0.0), (67, 0.4), (72, 0.1)):
             place(sfx, t, bell(n + 12, 3.5), 0.13, p)
