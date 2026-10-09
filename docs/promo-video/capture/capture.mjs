@@ -1,12 +1,19 @@
 // Drives the real Taco shell and captures UI keyframes for the promo video.
-// Usage: node capture.mjs <file.taco.html> <outDir>
+// Usage: node capture.mjs <file.taco.html> <outDir> [zh|en]
 import { chromium } from '/opt/node-tools/node_modules/playwright/index.mjs';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
-const [file, outDir] = process.argv.slice(2);
+const LANGS = {
+  zh: { locale: 'zh-CN', phrase: 'spec 不该', comment: '这句做成片头大字！🌮', author: '小林',
+        bubble: '评论', add: '添加评论', handoff: '交接改动' },
+  en: { locale: 'en-US', phrase: 'a spec should not', comment: 'Make this the opening title! 🌮', author: 'Alex',
+        bubble: 'Comment', add: 'Add comment', handoff: 'Handoff' },
+};
+const [file, outDir, lang = 'zh'] = process.argv.slice(2);
+const L = LANGS[lang];
 mkdirSync(outDir, { recursive: true });
 const browser = await chromium.launch();
-const context = await browser.newContext({ permissions: ['clipboard-read', 'clipboard-write'], viewport: { width: 1440, height: 810 }, deviceScaleFactor: 2, locale: 'zh-CN' });
+const context = await browser.newContext({ permissions: ['clipboard-read', 'clipboard-write'], viewport: { width: 1440, height: 810 }, deviceScaleFactor: 2, locale: L.locale });
 const page = await context.newPage();
 await page.goto('file://' + file);
 await page.waitForTimeout(2000);
@@ -30,11 +37,11 @@ await move(120, 300);
 await shot('browse');
 
 // 2. Select a phrase with a real drag
-const box = await page.evaluate(() => {
+const box = await page.evaluate(phrase => {
   const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   let n;
   while ((n = w.nextNode())) {
-    const i = n.data.indexOf('spec 不该');
+    const i = n.data.indexOf(phrase);
     if (i < 0) continue;
     const r = document.createRange();
     r.setStart(n, i); r.setEnd(n, i + 1);
@@ -43,16 +50,18 @@ const box = await page.evaluate(() => {
     const z = r.getBoundingClientRect();
     return { x1: a.left + 1, y1: a.top + a.height / 2, x2: z.right, y2: z.top + z.height / 2 };
   }
-});
+}, L.phrase);
 await move(box.x1, box.y1);
 await shot('select');
 await page.mouse.down();
 const steps = 8;
 for (let s = 1; s <= steps; s++) {
   const t = s / steps;
-  // first sweep right along line 1, then drop to line 2
-  const x = t < 0.6 ? box.x1 + (1055 - box.x1) * (t / 0.6) : 1055 + (box.x2 - 1055) * ((t - 0.6) / 0.4);
-  const y = t < 0.6 ? box.y1 : box.y2;
+  // a phrase that wraps: sweep right along line 1, then drop to line 2
+  const wraps = Math.abs(box.y2 - box.y1) > 5;
+  const x = !wraps ? box.x1 + (box.x2 - box.x1) * t
+    : t < 0.6 ? box.x1 + (1055 - box.x1) * (t / 0.6) : 1055 + (box.x2 - 1055) * ((t - 0.6) / 0.4);
+  const y = !wraps || t >= 0.6 ? box.y2 : box.y1;
   await move(x, y);
   await shot('select');
 }
@@ -61,20 +70,21 @@ await page.waitForTimeout(500);
 await shot('select');
 
 // 3. Comment
-const bubble = page.getByText('评论', { exact: true }).last();
+const bubble = page.getByText(L.bubble, { exact: true }).last();
 const bc = await center(bubble);
 await move(bc.x, bc.y);
 await shot('comment', { click: true });
 await bubble.click();
 await page.waitForTimeout(500);
 await shot('comment');
-const text = '这句做成片头大字！🌮';
-for (const ch of [...text]) {
-  await page.keyboard.insertText(ch);
+// type in exactly ten chunks so every language yields the same keyframes
+const chars = [...L.comment];
+for (let i = 0; i < 10; i++) {
+  await page.keyboard.insertText(chars.slice(Math.round(i * chars.length / 10), Math.round((i + 1) * chars.length / 10)).join(''));
   await page.waitForTimeout(40);
   await shot('comment');
 }
-const add = page.getByRole('button', { name: '添加评论' });
+const add = page.getByRole('button', { name: L.add, exact: true });
 const ac = await center(add);
 await move(ac.x, ac.y);
 await shot('comment', { click: true });
@@ -82,8 +92,8 @@ await add.click();
 const nameDialog = page.locator('dialog.author-name-dialog');
 await nameDialog.waitFor({ timeout: 1500 }).catch(() => {});
 if (await nameDialog.isVisible()) {
-  await nameDialog.locator('input').fill('小林');
-  await nameDialog.getByRole('button', { name: '添加评论' }).click();
+  await nameDialog.locator('input').fill(L.author);
+  await nameDialog.getByRole('button', { name: L.add, exact: true }).click();
 }
 await page.waitForTimeout(700);
 await shot('comment');
@@ -107,7 +117,7 @@ await page.waitForTimeout(900);
 await shot('storyboard', { click: true });
 
 // 6. Handoff
-const ho = page.getByRole('button', { name: '交接改动' }).first();
+const ho = page.getByRole('button', { name: L.handoff, exact: true }).first();
 const hc = await center(ho);
 await move(hc.x, hc.y);
 await shot('handoff', { click: true });

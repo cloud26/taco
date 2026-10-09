@@ -94,7 +94,7 @@
 
   /* Scene 7: claims */
   #claim { display: grid; place-items: center; text-align: center; color: #fff; }
-  #claimWord { font-size: 190px; font-weight: 900; letter-spacing: -4px; line-height: 1.1; }
+  #claimWord { display: inline-block; white-space: nowrap; font-size: 190px; font-weight: 900; letter-spacing: -4px; line-height: 1.1; }
   #claimSub { font-size: 48px; font-weight: 500; opacity: .85; margin-top: 26px; }
 
   /* Scene 8: CTA */
@@ -119,7 +119,7 @@
 <div class="layer" id="night"></div>
 <div class="layer" id="grid"></div>
 <div class="layer" id="cards"></div>
-<div class="abs" id="chaosText"><div class="l1">一份 spec，</div><div class="l2">散落在 <span id="count">0</span> 个地方。</div></div>
+<div class="abs" id="chaosText"><div class="l1">一份 spec，</div><div class="l2"></div></div>
 <div class="abs" id="ifText">如果，一切都在<em>一个文件</em>里？</div>
 <div class="abs" id="fileIcon">
   <svg viewBox="0 0 200 250" width="200" height="250">
@@ -191,15 +191,79 @@ const hash = n => { const x = Math.sin(n * 127.1) * 43758.5453; return x - Math.
 const $ = id => document.getElementById(id);
 const set = (el, o, tf) => { el.style.opacity = o; if (tf !== undefined) el.style.transform = tf; el.style.visibility = o <= 0.001 ? 'hidden' : 'visible'; };
 
+// ---------- copy (?lang=zh|en) ----------
+const LANG = new URLSearchParams(location.search).get('lang') || 'zh';
+const COPY = {
+  zh: {
+    l1: '一份 spec，', l2: n => `散落在 <span id="count">${n}</span> 个地方。`,
+    ifText: '如果，一切都在<em>一个文件</em>里？',
+    tagline: '让人与 Agent 在<b>一个文件</b>里<br>共同审阅、传递和管理 spec。',
+    file: 'Taco_宣传片.taco.html', offline: '● 离线 · 无需登录',
+    sources: [['💬', '群聊记录'], ['✉️', '邮件 RE: RE: FW:'], ['📚', 'Wiki 旧版'], ['🖼️', '截图 (3).png'],
+      ['📄', '需求_v7.pdf'], ['📝', '会议纪要'], ['📊', '排期表.xlsx'], ['🧵', 'PR 评论'],
+      ['📌', '便签'], ['🎨', '白板照片'], ['🗂️', '网盘/新建文件夹'], ['📎', '最终版_真的最终.docx']],
+    chips: [['打开即读', '目录 · 大纲 · 原始 Markdown，所见即所得'], ['划词评论', '评论锚定在原文上，随文件一起走'],
+      ['评审就在文件里', '不需要账号，不需要服务器'], ['图表也能审', 'Mermaid · JSON · YAML 原样可编辑'], ['一键交接', '修改与评论，整包交给 Agent']],
+    term: ['<span class="p">agent ›</span> 收到 Taco Handoff：1 条评论',
+      '<span class="d">  引用</span> <span class="q">“spec 不该散落在十二个地方”</span>',
+      '<span class="d">  小林</span> 这句做成片头大字！<span class="em">🌮</span>',
+      '<span class="ok">  ✓</span> 片头大字：「一份 spec，散落在十二个地方。」',
+      '<span class="ok">  ✓</span> 已写回 scenes/storyboard.md',
+      '<span class="ok">  ✓</span> 已刷新 Taco_宣传片.taco.html',
+      '<span class="d">    docId 与评论线程原样保留</span>'],
+    nodes: ['规格目录', 'Agent 打包', '浏览器里评审', 'Handoff 同步'],
+    loopCenter: '人负责判断<br><span>Agent 负责落地</span>',
+    claims: [['离线可用', '断网也能打开、阅读、评论'], ['无需账号', '收件人只需要一个浏览器'],
+      ['Markdown 仍是源头', '可 diff · 可 grep · 可 git'], ['MIT 开源', '界面和格式，都能自己改']],
+    ctaHead: '一个文件，<em>就是交接物。</em>',
+    ctaUrl: 'MIT 开源 · <b>github.com/Arcadia822/taco</b>',
+    ps: '<span>P.S.</span>这支短片的分镜，<br>就是在 Taco 里评审的。', psTop: -215,
+  },
+  en: {
+    l1: 'One spec,', l2: n => `scattered across <span id="count">${n}</span> places.`,
+    ifText: 'What if it all lived in <em>one file</em>?',
+    tagline: 'Review, hand off, and manage specs<br>with humans and agents — <b>in one file</b>.',
+    file: 'Taco_Promo.taco.html', offline: '● Offline · No sign-in',
+    sources: [['💬', 'Group chat'], ['✉️', 'RE: RE: FW: spec'], ['📚', 'Old wiki page'], ['🖼️', 'Screenshot (3).png'],
+      ['📄', 'requirements_v7.pdf'], ['📝', 'Meeting notes'], ['📊', 'Schedule.xlsx'], ['🧵', 'PR comments'],
+      ['📌', 'Sticky note'], ['🎨', 'Whiteboard photo'], ['🗂️', 'Drive/New Folder'], ['📎', 'FINAL_final_v2.docx']],
+    chips: [['Open and read', 'File tree · outline · the original Markdown, WYSIWYG'], ['Comment on any text', 'Comments anchor to the text and travel with the file'],
+      ['Review lives in the file', 'No account. No server.'], ['Review diagrams too', 'Mermaid · JSON · YAML, editable as-is'], ['One-click Handoff', 'Edits and comments, packed for your agent']],
+    term: ['<span class="p">agent ›</span> Taco Handoff received: 1 comment',
+      '<span class="d">  quote</span> <span class="q">"…scattered across twelve places"</span>',
+      '<span class="d">  Alex </span> Make this the opening title! <span class="em">🌮</span>',
+      '<span class="ok">  ✓</span> Opening title: "One spec, scattered…"',
+      '<span class="ok">  ✓</span> Updated scenes/storyboard.md',
+      '<span class="ok">  ✓</span> Refreshed Taco_Promo.taco.html',
+      '<span class="d">    docId and comment threads preserved</span>'],
+    nodes: ['Spec directory', 'Agent packs', 'Review in browser', 'Handoff & sync'],
+    loopCenter: 'Humans judge.<br><span>Agents deliver.</span>',
+    claims: [['Works offline', 'Open, read, and comment without a network'], ['No account', 'Recipients only need a browser'],
+      ['Markdown stays canonical', 'diff it · grep it · git it'], ['MIT licensed', 'Change the UI and the format yourself']],
+    ctaHead: 'One file. <em>That\'s the handoff.</em>',
+    ctaUrl: 'MIT licensed · <b>github.com/Arcadia822/taco</b>',
+    ps: '<span>P.S.</span>This film\'s storyboard<br>was reviewed in Taco.', psTop: -255,
+  },
+}[LANG];
+document.documentElement.lang = LANG === 'en' ? 'en' : 'zh-CN';
+$('chaosText').querySelector('.l1').textContent = COPY.l1;
+$('chaosText').querySelector('.l2').innerHTML = COPY.l2(0);
+$('ifText').innerHTML = COPY.ifText;
+$('tagline').innerHTML = COPY.tagline;
+$('url').innerHTML = `file:///Users/you/Desktop/<b>${COPY.file}</b><span class="off">${COPY.offline}</span>`;
+$('loopCenter').innerHTML = COPY.loopCenter;
+COPY.nodes.forEach((lb, i) => { $('n' + i).querySelector('.lb').textContent = lb; });
+$('ctaHead').innerHTML = COPY.ctaHead;
+$('ctaUrl').innerHTML = COPY.ctaUrl;
+$('ps').querySelector('.t').innerHTML = COPY.ps;
+$('psImg').style.top = `${COPY.psTop}px`;
+
 // ---------- sound events (read by score.py) ----------
 const EVENTS = [];
 const ev = (t, type, extra = {}) => EVENTS.push({ t: +t.toFixed(4), type, ...extra });
 
 // ---------- scene 1: twelve scattered sources ----------
-const SOURCES = [
-  ['💬', '群聊记录'], ['✉️', '邮件 RE: RE: FW:'], ['📚', 'Wiki 旧版'], ['🖼️', '截图 (3).png'],
-  ['📄', '需求_v7.pdf'], ['📝', '会议纪要'], ['📊', '排期表.xlsx'], ['🧵', 'PR 评论'],
-  ['📌', '便签'], ['🎨', '白板照片'], ['🗂️', '网盘/新建文件夹'], ['📎', '最终版_真的最终.docx']];
+const SOURCES = COPY.sources;
 const cardEls = SOURCES.map(([em, label], i) => {
   const d = document.createElement('div');
   d.className = 'abs card';
@@ -311,11 +375,11 @@ function buildProductTimeline() {
   c(P + BEAT * 19.5, 900, 300, 1.3); c(M - BEAT * 0.5, 860, 330, 1.22); c(M + BEAT * 0.6, 720, 405, 1);
   c(M + BEAT * 1.6, 720, 405, 1); c(M + BEAT * 2.6, 690, 440, 1.5); c(M + BEAT * 4.2, 700, 445, 1.58);
   c(M + BEAT * 4.8, 720, 405, 1); c(M + BEAT * 6.2, 720, 405, 1); c(M + BEAT * 7, 980, 420, 1.35); c(S.agent + 1, 900, 420, 1.3);
-  chips.push({ t0: P + BEAT * 0.5, t1: P + BEAT * 5, n: 1, color: 'var(--green)', title: '打开即读', sub: '目录 · 大纲 · 原始 Markdown，所见即所得' });
-  chips.push({ t0: P + BEAT * 5.5, t1: P + BEAT * 18, n: 2, color: 'var(--blue)', title: '划词评论', sub: '评论锚定在原文上，随文件一起走' });
-  chips.push({ t0: P + BEAT * 18.4, t1: M, n: 3, color: 'var(--orange)', title: '评审就在文件里', sub: '不需要账号，不需要服务器' });
-  chips.push({ t0: M + BEAT * 0.2, t1: M + BEAT * 4.6, n: 4, color: 'var(--green)', title: '图表也能审', sub: 'Mermaid · JSON · YAML 原样可编辑' });
-  chips.push({ t0: M + BEAT * 4.8, t1: S.agent + 0.2, n: 5, color: 'var(--blue)', title: '一键交接', sub: '修改与评论，整包交给 Agent' });
+  chips.push({ t0: P + BEAT * 0.5, t1: P + BEAT * 5, n: 1, color: 'var(--green)', title: COPY.chips[0][0], sub: COPY.chips[0][1] });
+  chips.push({ t0: P + BEAT * 5.5, t1: P + BEAT * 18, n: 2, color: 'var(--blue)', title: COPY.chips[1][0], sub: COPY.chips[1][1] });
+  chips.push({ t0: P + BEAT * 18.4, t1: M, n: 3, color: 'var(--orange)', title: COPY.chips[2][0], sub: COPY.chips[2][1] });
+  chips.push({ t0: M + BEAT * 0.2, t1: M + BEAT * 4.6, n: 4, color: 'var(--green)', title: COPY.chips[3][0], sub: COPY.chips[3][1] });
+  chips.push({ t0: M + BEAT * 4.8, t1: S.agent + 0.2, n: 5, color: 'var(--blue)', title: COPY.chips[4][0], sub: COPY.chips[4][1] });
   chips.forEach(ch => ev(ch.t0, 'swish'));
 }
 function keyAt(list, t) { let k = list[0]; for (const x of list) if (x.t <= t) k = x; return k; }
@@ -371,15 +435,8 @@ function product(t) {
 }
 
 // ---------- scene 6: the agent picks it up, and the loop ----------
-const TERM = [
-  [0.0, '<span class="p">agent ›</span> 收到 Taco Handoff：1 条评论'],
-  [0.6, '<span class="d">  引用</span> <span class="q">“spec 不该散落在十二个地方”</span>'],
-  [1.1, '<span class="d">  小林</span> 这句做成片头大字！<span class="em">🌮</span>'],
-  [1.9, '<span class="ok">  ✓</span> 片头大字：「一份 spec，散落在十二个地方。」'],
-  [2.4, '<span class="ok">  ✓</span> 已写回 scenes/storyboard.md'],
-  [2.9, '<span class="ok">  ✓</span> 已刷新 Taco_宣传片.taco.html'],
-  [3.3, '<span class="d">    docId 与评论线程原样保留</span>'],
-];
+const TERM_DELAYS = [0.0, 0.6, 1.1, 1.9, 2.4, 2.9, 3.3];
+const TERM = COPY.term.map((line, i) => [TERM_DELAYS[i], line]);
 const T0 = S.agent + BEAT * 1.2;
 TERM.forEach(([d], i) => ev(T0 + d, i < 3 ? 'type' : 'ok'));
 const LOOP_POS = [[-560, -40], [0, -330], [560, -40], [0, 250]];
@@ -414,12 +471,8 @@ function agent(t) {
 }
 
 // ---------- scene 7: claims ----------
-const CLAIMS = [
-  ['#3ecf8e', '离线可用', '断网也能打开、阅读、评论'],
-  ['#3b82f6', '无需账号', '收件人只需要一个浏览器'],
-  ['#f97316', 'Markdown 仍是源头', '可 diff · 可 grep · 可 git'],
-  ['#0f1115', 'MIT 开源', '界面和格式，都能自己改'],
-];
+const CLAIM_BG = ['#3ecf8e', '#3b82f6', '#f97316', '#0f1115'];
+const CLAIMS = COPY.claims.map(([w, sub], i) => [CLAIM_BG[i], w, sub]);
 CLAIMS.forEach((_, i) => ev(S.claims + i * BEAT * 2, 'slam', { i }));
 function claims(t) {
   const on = t >= S.claims && t < S.cta;
@@ -429,6 +482,8 @@ function claims(t) {
   const k = seg(t, S.claims + i * BEAT * 2, S.claims + i * BEAT * 2 + 0.35);
   $('claim').style.background = bg;
   $('claimWord').textContent = w; $('claimSub').textContent = s;
+  $('claimWord').style.fontSize = '190px';
+  $('claimWord').style.fontSize = `${190 * Math.min(1, 1760 / $('claimWord').scrollWidth)}px`;
   $('claimWord').style.transform = `scale(${1.35 - 0.35 * eOut(k)})`;
   $('claimWord').style.filter = `blur(${(1 - eOut(k)) * 10}px)`;
   $('claimSub').style.opacity = seg(t, S.claims + i * BEAT * 2 + 0.15, S.claims + i * BEAT * 2 + 0.5);

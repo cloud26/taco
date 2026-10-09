@@ -1,0 +1,6 @@
+flowchart LR
+    A["Spec directory<br/>canonical source"] --> B["Agent packs<br/>one .taco.html"]
+    B --> C["Human reads, edits,<br/>and comments in the browser"]
+    C --> D["Handoff"]
+    D --> E["Agent syncs edits<br/>and comments"]
+    E --> B
