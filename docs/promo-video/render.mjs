@@ -1,5 +1,5 @@
 // Renders video.html frame by frame.
-// Usage: node render.mjs <shotsDir> <outDir> [--lang zh|en] [--format wide|square] [--fps 30] [--at t1,t2,...]
+// Usage: node render.mjs <shotsDir> <outDir> [--page video.html|minimal.html] [--lang zh|en] [--format wide|square] [--fps 30] [--at t1,t2,...]
 import { chromium } from '/opt/node-tools/node_modules/playwright/index.mjs';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
@@ -12,6 +12,7 @@ const fps = Number(opt('--fps', 30));
 const at = opt('--at', null);
 const lang = opt('--lang', 'zh');
 const format = opt('--format', 'wide');
+const pageFile = opt('--page', 'video.html');
 mkdirSync(outDir, { recursive: true });
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -19,7 +20,7 @@ const shots = JSON.parse(readFileSync(`${shotsDir}/shots.json`, 'utf8'));
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
 page.on('pageerror', e => { console.error('page error:', e.message); process.exit(1); });
-await page.goto(`${pathToFileURL(`${here}/video.html`).href}?lang=${lang}&format=${format}`);
+await page.goto(`${pathToFileURL(`${here}/${pageFile}`).href}?lang=${lang}&format=${format}`);
 await page.evaluate(async ([s, d]) => { await window.setup(s, d, s.comment.at(-1).file); await document.fonts.ready; }, [shots, pathToFileURL(shotsDir).href]);
 const timeline = await page.evaluate(() => window.TIMELINE);
 await page.setViewportSize(timeline.size);

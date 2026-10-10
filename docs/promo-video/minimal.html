@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Taco Promo Minimal</title>
+<!--
+  Minimal cut of the Taco promo: one idea per shot, white space, large type,
+  slow camera pushes on the real product, and nothing else on screen.
+  Same contract as video.html: render.mjs calls window.setup(...) and then
+  window.renderFrame(t); window.TIMELINE carries the sound events for
+  score-minimal.py. Query: ?lang=zh|en&format=wide|square.
+-->
+<style>
+  /* Noto Sans SC (SIL OFL 1.1), subset to the Chinese characters this page uses */
+  @font-face { font-family: "Noto Sans SC Subset"; src: url(fonts/NotoSansSC-minimal-subset.woff2) format("woff2"); font-weight: 100 900; }
+  :root {
+    --bg: #fbfbfd; --ink: #1d1d1f; --grey: #86868b; --line: #e5e5ea;
+    --green: #3ecf8e; --blue: #3b82f6; --orange: #f97316;
+    --sans: "Inter", "Noto Sans SC Subset", "WenQuanYi Zen Hei", sans-serif;
+    --mono: "DejaVu Sans Mono", "WenQuanYi Zen Hei Mono", monospace;
+    --W: 1920px; --H: 1080px;
+  }
+  .sq { --W: 1080px; --H: 1080px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: var(--W); height: var(--H); overflow: hidden; background: var(--bg); }
+  body { font-family: var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
+  .shot { position: absolute; inset: 0; visibility: hidden; transform-origin: 50% 50%; }
+  .block { position: absolute; left: 0; width: var(--W); text-align: center; padding: 0 60px; }
+  .line { display: block; overflow: hidden; padding-bottom: .12em; margin-bottom: -.12em; }
+  .line > span { display: inline-block; will-change: transform; }
+  .big { font-size: 128px; font-weight: 700; letter-spacing: -0.035em; line-height: 1.08; }
+  .lead { font-size: 60px; font-weight: 600; letter-spacing: -0.02em; color: var(--grey); line-height: 1.2; }
+  .cap { font-size: 76px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.12; }
+  .small { font-size: 34px; font-weight: 500; color: var(--grey); }
+  .mono { font-family: var(--mono); font-size: 34px; color: var(--grey); }
+  .sq .big { font-size: 112px; }
+  .sq .lead { font-size: 54px; }
+  .sq .cap { font-size: 70px; }
+  #aHead .cap { font-size: 100px; }
+  .sq #aHead .cap { font-size: 92px; }
+  .sqbr { display: none; }
+  .sq .sqbr { display: inline; }
+  .wbr { display: inline; }
+  .sq .wbr { display: none; }
+
+  /* the product, presented as an object */
+  #card { position: absolute; border-radius: 28px; overflow: hidden; background: #fff;
+          box-shadow: 0 40px 100px #1d1d1f1f, 0 0 0 1px var(--line); visibility: hidden; }
+  #cam { position: absolute; left: 0; top: 0; width: 1440px; height: 810px; transform-origin: 0 0; }
+  #cam img { position: absolute; left: 0; top: 0; width: 1440px; height: 810px; }
+  #cursor { position: absolute; left: 0; top: 0; width: 22px; height: 29px; transform-origin: 0 0; }
+
+  .bub { position: absolute; border-radius: 50%; }
+  #file { position: absolute; width: 150px; height: 188px; filter: drop-shadow(0 30px 40px #1d1d1f22); }
+  #fade { position: absolute; inset: 0; background: var(--bg); visibility: hidden; }
+</style>
+</head>
+<body>
+<div class="shot" id="sA">
+  <div class="block" id="aHead"></div>
+  <div class="block small" id="aBrand"></div>
+</div>
+<div class="shot" id="sB"><div class="block" id="bText"></div></div>
+<div class="shot" id="sC">
+  <svg id="file" viewBox="0 0 200 250">
+    <path d="M18 0h120l62 62v170a18 18 0 0 1-18 18H18A18 18 0 0 1 0 232V18A18 18 0 0 1 18 0z" fill="#fff"/>
+    <path d="M138 0l62 62h-44a18 18 0 0 1-18-18z" fill="#e8e8ed"/>
+    <circle cx="112" cy="128" r="34" fill="#3ecf8e"/><circle cx="74" cy="156" r="22" fill="#3b82f6"/><circle cx="110" cy="186" r="14" fill="#f97316"/>
+  </svg>
+  <div class="block" id="cText"></div>
+</div>
+<div class="shot" id="sD"><div class="block" id="dText"></div></div>
+<div class="shot" id="sE"><div class="block" id="eText"></div></div>
+<div class="shot" id="sF"><div class="block" id="fText"></div></div>
+<div class="shot" id="sG"><div class="block" id="gText"></div></div>
+<div class="shot" id="sH">
+  <div id="hLogo" style="position:absolute"><div class="bub" style="background:var(--green)"></div><div class="bub" style="background:var(--blue)"></div><div class="bub" style="background:var(--orange)"></div></div>
+  <div class="block" id="hText"></div>
+</div>
+<div id="card"><div id="cam"><img id="shot" alt="">
+  <svg id="cursor" viewBox="0 0 26 34"><path d="M2 2v26l7-6.5 4.6 10 4.4-2-4.5-9.7H23z" fill="#1d1d1f" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>
+</div></div>
+<div id="fade"></div>
+
+<script>
+// ---------- setup ----------
+const Q = new URLSearchParams(location.search);
+const LANG = Q.get('lang') || 'zh';
+const SQ = Q.get('format') === 'square';
+if (SQ) document.documentElement.classList.add('sq');
+document.documentElement.lang = LANG === 'en' ? 'en' : 'zh-CN';
+const W = SQ ? 1080 : 1920, H = 1080;
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const eOut = k => 1 - Math.pow(1 - k, 5);           // quint: fast start, long settle
+const eInOut = k => k < .5 ? 16 * k ** 5 : 1 - Math.pow(-2 * k + 2, 5) / 2;
+const spring = k => k <= 0 ? 0 : 1 - Math.exp(-7 * k) * Math.cos(10 * k);
+const $ = id => document.getElementById(id);
+const show = (el, o, tf) => { el.style.opacity = o; el.style.visibility = o > 0.001 ? 'visible' : 'hidden'; if (tf !== undefined) el.style.transform = tf; };
+
+// ---------- copy ----------
+const COPY = {
+  zh: {
+    a: ['一个文件，<br class="sqbr">就是交接物。'],
+    b: { lead: '你的 spec，', big: ['散落在<br class="sqbr">十二个地方。'] },
+    c: ['现在，<br class="sqbr">只要一个。'],
+    d: '划词，即可评论。', e: '评论，跟着文件走。', f: '一键，交给 Agent。',
+    g: ['离线。', '无需账号。', '开源。'],
+    h: '一个文件，就是交接物。',
+  },
+  en: {
+    a: ['One file.<br class="sqbr"> That\'s the handoff.'],
+    b: { lead: 'Your spec lives in', big: ['twelve places.'] },
+    c: ['Now it lives<br class="sqbr"> in one.'],
+    d: 'Select. Comment.', e: 'Comments travel<br class="sqbr"> with the file.', f: 'One click<br class="sqbr"> to your agent.',
+    g: ['Offline.', 'No account.', 'Open source.'],
+    h: 'One file. That\'s the handoff.',
+  },
+}[LANG];
+
+// ---------- timing (100 BPM, cuts on the beat) ----------
+const BPM = 100, BEAT = 60 / BPM;
+const LEN = { A: 8, B: 6, C: 6, D: 12, E: 5, F: 7, G: 6, H: 10 };
+const T = {}; { let at = 0; for (const [k, n] of Object.entries(LEN)) { T[k] = [at, at + n * BEAT]; at += n * BEAT; } }
+const DURATION = T.H[1];
+const EVENTS = [];
+const ev = (t, type, extra = {}) => EVENTS.push({ t: +t.toFixed(4), type, ...extra });
+Object.keys(T).forEach((k, i) => ev(T[k][0], i ? 'cut' : 'start', { shot: k, i }));
+
+// ---------- text helpers ----------
+// every line is masked and rises into place
+function lines(el, cls, list) {
+  el.innerHTML += list.map(h => `<span class="line ${cls}"><span>${h}</span></span>`).join('');
+}
+function rise(el, t, t0, stagger = 0.09, dur = 0.9) {
+  [...el.querySelectorAll('.line > span')].forEach((s, i) => {
+    const k = eOut(seg(t, t0 + i * stagger, t0 + i * stagger + dur));
+    s.style.transform = `translateY(${(1 - k) * 105}%)`;
+  });
+}
+function place(el, y) { el.style.top = `${y}px`; }
+
+lines($('aHead'), 'cap', COPY.a);
+$('aBrand').innerHTML = '<span style="font-weight:700;color:var(--ink)">Taco</span>';
+lines($('bText'), 'lead', [COPY.b.lead]); lines($('bText'), 'big', COPY.b.big);
+lines($('cText'), 'big', COPY.c);
+lines($('dText'), 'cap', [COPY.d]); lines($('eText'), 'cap', [COPY.e]); lines($('fText'), 'cap', [COPY.f]);
+lines($('gText'), 'big', COPY.g);
+lines($('hText'), 'big', ['Taco']); lines($('hText'), 'lead', [COPY.h]);
+$('hText').insertAdjacentHTML('beforeend', '<span class="line small" style="margin-top:28px"><span>github.com/Arcadia822/taco</span></span>');
+
+// layout per format
+const L = SQ ? {
+  aHead: 60, aBrand: 985, card: { A: [70, 330, 940, 610], UI: [50, 300, 980, 730] }, cap: 90,
+  bText: 330, cText: 560, file: [465, 250], gText: 260, hLogo: [540, 300], hText: 420,
+} : {
+  aHead: 70, aBrand: 990, card: { A: [400, 250, 1120, 690], UI: [320, 250, 1280, 760] }, cap: 90,
+  bText: 360, cText: 560, file: [885, 230], gText: 300, hLogo: [960, 300], hText: 420,
+};
+place($('aHead'), L.aHead); place($('aBrand'), L.aBrand); place($('bText'), L.bText); place($('cText'), L.cText);
+['dText', 'eText', 'fText'].forEach(id => place($(id), L.cap)); place($('gText'), L.gText); place($('hText'), L.hText);
+
+// ---------- the product shots ----------
+let SHOT_DIR = '';
+const track = [];   // {t, file, cx, cy, click}
+const cams = {};    // shot -> [{t, fx, fy, s, f}], t relative to the shot, s = screen px per UI px
+function buildTracks(sh) {
+  const at = (k, dt) => T[k][0] + dt;
+  const add = (t, s, extra = {}) => track.push({ t, file: s.file, cx: s.cursor.x, cy: s.cursor.y, ...extra });
+  add(0, sh.comment[13], { hide: true });
+  // D: select a sentence, open the comment box, type
+  add(at('D', 0), sh.select[0]);
+  sh.select.slice(1).forEach((s, i) => add(at('D', 0.6 + i * 0.15), s));
+  add(at('D', 2.4), sh.comment[0], { click: true });
+  add(at('D', 2.7), sh.comment[1]);
+  sh.comment.slice(2, 12).forEach((s, i) => add(at('D', 3.0 + i * 0.27), s, { key: true }));
+  // E: post it
+  add(at('E', 0), sh.comment[12]);
+  add(at('E', 0.5), sh.comment[12], { click: true });
+  add(at('E', 0.62), sh.comment[13], { ding: true });
+  // F: hand off
+  track.push({ t: at('F', 0), file: sh.handoff[0].file, cx: 980, cy: 260 });
+  add(at('F', 1.1), sh.handoff[0], { click: true });
+  add(at('F', 1.25), sh.handoff[1], { ding: true });
+  add(at('G', 0), sh.handoff[1], { hide: true });
+  track.sort((a, b) => a.t - b.t);
+  track.forEach(k => { if (k.click) ev(k.t - 0.04, 'click'); if (k.key) ev(k.t, 'key'); if (k.ding) ev(k.t + 0.05, 'ding'); });
+  const z = SQ ? 1.12 : 1;  // the square card is narrower, so frame a little tighter
+  cams.A = [{ t: 0, fx: 1120, fy: 360, s: 1.42 * z, f: 0 }, { t: LEN.A * BEAT, fx: 1150, fy: 360, s: 1.55 * z, f: 0 }];
+  cams.D = [{ t: 0, fx: 700, fy: 360, s: 1.9 * z, f: 0.8 }, { t: 2.45, fx: 600, fy: 380, s: 1.9 * z, f: 0.8 },
+            { t: 2.85, fx: 1280, fy: 440, s: 2.3 * z, f: 0 }, { t: LEN.D * BEAT, fx: 1280, fy: 440, s: 2.45 * z, f: 0 }];
+  cams.E = [{ t: 0, fx: 1290, fy: 470, s: 2.3 * z, f: 0 }, { t: 0.62, fx: 1290, fy: 470, s: 2.3 * z, f: 0 },
+            { t: 1.3, fx: 1140, fy: 400, s: 1.55 * z, f: 0 }, { t: LEN.E * BEAT, fx: 1140, fy: 400, s: 1.65 * z, f: 0 }];
+  cams.F = [{ t: 0, fx: 1120, fy: 120, s: 2.4 * z, f: 0 }, { t: 1.8, fx: 1140, fy: 110, s: 2.5 * z, f: 0 },
+            { t: 1.801, fx: 720, fy: 740, s: 2.5 * z, f: 0 }, { t: LEN.F * BEAT, fx: 720, fy: 740, s: 2.65 * z, f: 0 }];
+}
+const keyAt = t => { let k = track[0]; for (const x of track) if (x.t <= t) k = x; return k; };
+function cursorAt(t) {
+  let i = 0; while (i < track.length - 1 && track[i + 1].t <= t) i++;
+  const a = track[i], b = track[Math.min(i + 1, track.length - 1)];
+  const lead = Math.min(0.6, (b.t - a.t) * 0.85);
+  const k = b === a ? 0 : eInOut(seg(t, b.t - lead, b.t));
+  return { x: lerp(a.cx, b.cx, k), y: lerp(a.cy, b.cy, k) };
+}
+function camAt(list, t) {
+  let i = 0; while (i < list.length - 1 && list[i + 1].t <= t) i++;
+  const a = list[i], b = list[Math.min(i + 1, list.length - 1)];
+  const k = b === a ? 1 : eInOut(seg(t, a.t, b.t));
+  return { fx: lerp(a.fx, b.fx, k), fy: lerp(a.fy, b.fy, k), s: lerp(a.s, b.s, k), f: lerp(a.f, b.f, k) };
+}
+function card(t, shot, rect, o, showCursor) {
+  const [x, y, w, h] = rect;
+  const el = $('card');
+  el.style.left = `${x}px`; el.style.top = `${y}px`; el.style.width = `${w}px`; el.style.height = `${h}px`;
+  const k = keyAt(t);
+  const src = SHOT_DIR + '/' + k.file;
+  if ($('shot').getAttribute('src') !== src) $('shot').setAttribute('src', src);
+  const c = camAt(cams[shot], t - T[shot][0]);
+  const s = Math.max(c.s, w / 1440, h / 810);
+  const cu = cursorAt(t);
+  const fx = clamp(lerp(c.fx, cu.x, c.f), w / 2 / s, 1440 - w / 2 / s), fy = clamp(lerp(c.fy, cu.y, c.f), h / 2 / s, 810 - h / 2 / s);
+  $('cam').style.transform = `translate(${w / 2}px,${h / 2}px) scale(${s}) translate(${-fx}px,${-fy}px)`;
+  const last = [...track].reverse().find(x => x.click && x.t - 0.04 <= t);
+  const press = last && t - last.t < 0.12 ? 0.86 : 1;
+  $('cursor').style.transform = `translate(${cu.x - 3}px,${cu.y - 2}px) scale(${press * 1.6 / s})`;
+  $('cursor').style.visibility = showCursor ? 'visible' : 'hidden';
+  show(el, o);
+}
+
+// ---------- shots ----------
+// opacity envelope: soft fade at both ends, none at the very first frame (the cover)
+const env = (t, [a, b], fin = 0.3, fout = 0.3) => (fin ? seg(t, a, a + fin) : (t >= a ? 1 : 0)) * (1 - seg(t, b - fout, b));
+// each shot drifts slightly toward the viewer while it is on screen
+const drift = (t, [a, b], amt = 0.025) => `scale(${1 + amt * seg(t, a, b)})`;
+
+function shotA(t) {
+  const o = t < T.A[1] ? env(t, T.A, 0, 0.35) : 0;
+  show($('sA'), o, drift(t, T.A, 0.015));
+  rise($('aHead'), t, -1);  // already in place on the first frame
+  return o;
+}
+function textShot(id, el, t, span, extra) {
+  const o = t >= span[0] && t < span[1] ? env(t, span, 0.25, 0.3) : 0;
+  show($(id), o, drift(t, span));
+  if (o) { rise($(el), t, span[0] + 0.05); if (extra) extra(t); }
+}
+function shotC(t) {
+  textShot('sC', 'cText', t, T.C, t => {
+    const k = spring(seg(t, T.C[0] + 0.15, T.C[0] + 1.2));
+    const [x, y] = L.file;
+    $('file').style.left = `${x}px`; $('file').style.top = `${y}px`;
+    $('file').style.transform = `translateY(${(1 - k) * -80}px) scale(${0.6 + 0.4 * k})`;
+    $('file').style.opacity = clamp(k * 2);
+  });
+}
+function shotG(t) {
+  const o = t >= T.G[0] && t < T.G[1] ? env(t, T.G, 0.2, 0.3) : 0;
+  show($('sG'), o, drift(t, T.G, 0.02));
+  if (!o) return;
+  [...$('gText').querySelectorAll('.line > span')].forEach((s, i) => {
+    const t0 = T.G[0] + 0.15 + i * BEAT * 2;
+    const k = eOut(seg(t, t0, t0 + 0.8));
+    s.style.transform = `translateY(${(1 - k) * 105}%)`;
+    s.parentNode.style.opacity = i < 2 && t > t0 + BEAT * 2 ? 0.28 : 1;  // earlier words step back
+  });
+}
+const LOGO = [[15.2, 8.8, 4.8], [7.2, 14.4, 3.2], [14.8, 18, 2]];
+function shotH(t) {
+  const o = t >= T.H[0] ? env(t, [T.H[0], DURATION + 1], 0.3, 0) : 0;
+  show($('sH'), o);
+  if (!o) return;
+  const [cx, cy] = L.hLogo, unit = 9;
+  LOGO.forEach(([x, y, r], i) => {
+    const b = $('hLogo').children[i];
+    const k = spring(seg(t, T.H[0] + 0.1 + i * 0.18, T.H[0] + 1.1 + i * 0.18));
+    b.style.width = b.style.height = `${r * 2 * unit}px`;
+    b.style.left = `${cx + (x - 12 - r) * unit}px`; b.style.top = `${cy + (y - 13 - r) * unit}px`;
+    b.style.transform = `scale(${k})`;
+  });
+  rise($('hText'), t, T.H[0] + 0.5, 0.18, 1.0);
+  show($('fade'), seg(t, DURATION - 0.6, DURATION));
+}
+LOGO.forEach((_, i) => ev(T.H[0] + 0.1 + i * 0.18, 'bubble', { i }));
+COPY.g.forEach((_, i) => ev(T.G[0] + 0.15 + i * BEAT * 2, 'word', { i }));
+ev(DURATION - BEAT * 6, 'final');
+
+function render(t) {
+  const oA = shotA(t);
+  textShot('sB', 'bText', t, T.B);
+  shotC(t);
+  ['D', 'E', 'F'].forEach(k => textShot('s' + k, k.toLowerCase() + 'Text', t, T[k]));
+  shotG(t); shotH(t);
+  // the product card: hero in A, then the three product shots
+  if (t < T.A[1]) card(t, 'A', L.card.A, oA, false);
+  else if (t >= T.D[0] && t < T.F[1]) {
+    const k = t < T.E[0] ? 'D' : t < T.F[0] ? 'E' : 'F';
+    // fade in with the first product shot and out with the last; cut in between
+    const o = seg(t, T.D[0], T.D[0] + 0.3) * (1 - seg(t, T.F[1] - 0.3, T.F[1]));
+    card(t, k, L.card.UI, o, true);
+    $('card').style.transform = `translateY(${(1 - eOut(seg(t, T.D[0], T.D[0] + 0.9))) * 60}px)`;
+  } else show($('card'), 0);
+}
+
+window.TIMELINE = { duration: DURATION, bpm: BPM, shots: T, events: EVENTS, size: { width: W, height: H } };
+window.setup = (shots, dir) => {
+  SHOT_DIR = dir;
+  buildTracks(shots);
+  EVENTS.sort((a, b) => a.t - b.t);
+  const files = new Set(track.map(k => k.file));
+  return Promise.all([...files].map(f => new Promise(r => { const im = new Image(); im.onload = im.onerror = r; im.src = dir + '/' + f; })));
+};
+window.renderFrame = t => {
+  render(t);
+  return new Promise(r => { const img = $('shot'); (img.complete ? Promise.resolve() : img.decode().catch(() => {})).then(() => requestAnimationFrame(() => r())); });
+};
+</script>
+</body>
+</html>

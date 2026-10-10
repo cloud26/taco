@@ -7,8 +7,12 @@ A 54-second promo video in Chinese (`zh`) and English (`en`), in two formats: `w
 | `storyboard/`, `storyboard-en/` | The storyboard Markdown, Mermaid diagram, and music notes (Chinese / English) |
 | `capture/capture.mjs` | Drives `skills/taco/taco-shell.html` and captures the UI keyframes plus the Handoff text |
 | `video.html` | Deterministic composition with all on-screen copy for both languages (`?lang=zh\|en`): `renderFrame(t)` is a pure function of time, and `TIMELINE` exports the sound events |
-| `render.mjs` | Renders `video.html` frame by frame with Chromium |
+| `minimal.html` | The 36-second minimal cut: one idea per shot, large type, white space, and slow camera pushes on the real product |
+| `render.mjs` | Renders `video.html` (or `--page minimal.html`) frame by frame with Chromium |
 | `score.py` | Synthesizes the soundtrack with numpy from the timeline (112 BPM, Am–F–C–G) |
+| `score-minimal.py` | The minimal cut's restrained soundtrack (100 BPM: soft pad, one piano note per cut) |
+| `synth.py` | DSP helpers and instruments shared by both scores |
+| `fonts/NotoSansSC-minimal-subset.woff2` | Noto Sans SC (SIL OFL 1.1), subset to the Chinese characters `minimal.html` uses, for real bold weights |
 
 ## Rebuild
 
@@ -25,5 +29,7 @@ ffmpeg -framerate 30 -i tmp/promo/frames/f%05d.jpg -i tmp/promo/score.wav \
 ```
 
 For the English cut, pack `storyboard-en/` as `tmp/Taco_Promo.taco.html` (`--title "Taco Promo"`, groups `Planning=spec.md,music.md` and `Storyboard=scenes/storyboard.md,diagrams/review-loop.mmd`), then pass `en` as the third argument to `capture.mjs` and `--lang en` to `render.mjs`; the remaining steps are the same. Add `--format square` to `render.mjs` for the square cut.
+
+For the minimal cut, render with `--page minimal.html` and score with `score-minimal.py` instead of `score.py`. If you change its Chinese copy, regenerate the font subset from `https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@500;700&text=<characters>`.
 
 Requirements: Node 22 with Playwright and Chromium, Python 3 with numpy, and ffmpeg. The scripts import Playwright from `/opt/node-tools/node_modules/playwright`; change that path to match your environment.
